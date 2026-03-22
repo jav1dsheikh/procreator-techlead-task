@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 import 'detail_screen.dart';
+import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,13 +22,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> fetchServices() async {
-    final response = await http.get(Uri.parse("http://10.0.2.2:3000/services"));
-
-    if (response.statusCode == 200) {
-      setState(() {
-        services = json.decode(response.body);
-        isLoading = false;
-      });
+    try {
+      final response = await ApiService.get("/services");
+      
+      if (response.statusCode == 200) {
+        setState(() {
+          services = json.decode(response.body);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Session expired or unauthorized. Please login again.")),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      }
     }
   }
 

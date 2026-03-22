@@ -1,6 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../services/api_service.dart';
 
 class BookingScreen extends StatefulWidget {
   final String service;
@@ -15,18 +14,31 @@ class _BookingScreenState extends State<BookingScreen> {
   final TextEditingController nameController = TextEditingController();
 
   Future<void> createBooking() async {
-    await http.post(
-      Uri.parse("http://10.0.2.2:3000/bookings"),
-      headers: {"Content-Type": "application/json"},
-      body: json.encode({
-        "service": widget.service,
-        "user": nameController.text,
-      }),
-    );
+    try {
+      final response = await ApiService.post(
+        "/bookings",
+        {
+          "service": widget.service,
+          "user": nameController.text,
+        },
+      );
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Booking Created")));
+      if (response.statusCode == 200 && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Booking Created")),
+        );
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to create booking")),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Session expired or unauthorized. Please login again.")),
+        );
+      }
+    }
   }
 
   @override
