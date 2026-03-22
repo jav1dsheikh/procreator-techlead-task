@@ -1,0 +1,10 @@
+# Node
+node_modules/
+
+# Flutter
+.dart_tool/
+build/
+ios/Pods/
+
+# Misc
+.env
