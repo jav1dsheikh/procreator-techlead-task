@@ -9,4 +9,6 @@ app.use("/auth", require("./routes/auth"));
 app.use("/services", require("./routes/services"));
 app.use("/bookings", require("./routes/bookings"));
 
+app.get("/", (req, res) => res.json({ message: "ProCreator API is running!" }));
+
 app.listen(3000, "0.0.0.0", () => console.log("Server running on port 3000"));

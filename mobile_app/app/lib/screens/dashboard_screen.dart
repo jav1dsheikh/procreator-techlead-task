@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import 'package:http/http.dart' as http;
 import 'detail_screen.dart';
-import 'login_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -12,55 +11,53 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  List services = [];
-  bool isLoading = true;
+  bool _isLoading = true;
+  List<dynamic> _services = [];
 
   @override
   void initState() {
     super.initState();
-    fetchServices();
+    _fetchServices();
   }
 
-  Future<void> fetchServices() async {
+  Future<void> _fetchServices() async {
     try {
-      final response = await ApiService.get("/services");
-      
+      final response = await http.get(
+        Uri.parse('https://procreator-backend.onrender.com/services'),
+      );
       if (response.statusCode == 200) {
         setState(() {
-          services = json.decode(response.body);
-          isLoading = false;
+          _services = json.decode(response.body);
+          _isLoading = false;
         });
+      } else {
+        print('Failed to load services: ${response.statusCode}');
+        setState(() => _isLoading = false);
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Session expired or unauthorized. Please login again.")),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-        );
-      }
+      print('Error fetching services: $e');
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Services")),
-      body: isLoading
+      appBar: AppBar(title: const Text('Dashboard')),
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
-              itemCount: services.length,
+              itemCount: _services.length,
               itemBuilder: (context, index) {
-                final service = services[index];
+                final service = _services[index];
                 return ListTile(
-                  title: Text(service["name"]),
+                  title: Text(service['name'] ?? 'Unknown Service'),
+                  subtitle: Text(service['description'] ?? ''),
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => DetailScreen(service: service["name"]),
+                        builder: (_) => DetailScreen(service: service),
                       ),
                     );
                   },

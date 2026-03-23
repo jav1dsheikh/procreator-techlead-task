@@ -8,28 +8,32 @@ class ApiService {
   static Future<Map<String, String>> _getHeaders() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('jwt_token');
-    
+
     if (token != null) {
       return {
         "Content-Type": "application/json",
         "Authorization": "Bearer $token",
       };
     }
-    
-    return {
-      "Content-Type": "application/json",
-    };
+
+    return {"Content-Type": "application/json"};
   }
 
   static Future<http.Response> get(String endpoint) async {
     final headers = await _getHeaders();
-    final response = await http.get(Uri.parse("$baseUrl$endpoint"), headers: headers);
-    
+    final response = await http.get(
+      Uri.parse("$baseUrl$endpoint"),
+      headers: headers,
+    );
+
     _checkUnauthorized(response);
     return response;
   }
 
-  static Future<http.Response> post(String endpoint, Map<String, dynamic> body) async {
+  static Future<http.Response> post(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
     final headers = await _getHeaders();
     final response = await http.post(
       Uri.parse("$baseUrl$endpoint"),
