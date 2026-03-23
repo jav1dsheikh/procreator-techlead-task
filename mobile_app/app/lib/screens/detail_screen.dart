@@ -17,16 +17,21 @@ class DetailScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              serviceName,
-              style: Theme.of(context).textTheme.headlineMedium,
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                serviceName,
+                style: Theme.of(context).textTheme.headlineMedium,
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
               serviceDescription,
               style: Theme.of(context).textTheme.bodyLarge,
+              textAlign: TextAlign.center,
             ),
             const Spacer(),
             SizedBox(

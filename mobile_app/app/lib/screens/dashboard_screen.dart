@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -21,9 +22,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _fetchServices() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token') ?? '';
+
     try {
       final response = await http.get(
         Uri.parse('https://procreator-backend.onrender.com/services'),
+        headers: {'Authorization': 'Bearer $token'},
       );
       if (response.statusCode == 200) {
         setState(() {
@@ -51,8 +56,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               itemBuilder: (context, index) {
                 final service = _services[index];
                 return ListTile(
-                  title: Text(service['name'] ?? 'Unknown Service'),
-                  subtitle: Text(service['description'] ?? ''),
+                  title: Text(
+                    service['name'] ?? 'Unknown Service',
+                    textAlign: TextAlign.center,
+                  ),
+                  subtitle: Text(
+                    service['description'] ?? '',
+                    textAlign: TextAlign.center,
+                  ),
                   onTap: () {
                     Navigator.push(
                       context,

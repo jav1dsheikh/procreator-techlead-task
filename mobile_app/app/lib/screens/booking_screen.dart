@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BookingScreen extends StatefulWidget {
   final String serviceName;
@@ -26,10 +27,16 @@ class _BookingScreenState extends State<BookingScreen> {
 
     setState(() => _isSubmitting = true);
 
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('jwt_token') ?? '';
+
     try {
       final response = await http.post(
         Uri.parse('https://procreator-backend.onrender.com/bookings'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode({'service': widget.serviceName, 'user': userName}),
       );
 
@@ -72,11 +79,15 @@ class _BookingScreenState extends State<BookingScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Booking: ${widget.serviceName}',
-              style: Theme.of(context).textTheme.titleLarge,
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'Booking: ${widget.serviceName}',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 24),
             TextField(
